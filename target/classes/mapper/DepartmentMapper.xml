@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="dao.DepartmentMapper">
+  <resultMap id="BaseResultMap" type="entity.Department">
+    <id column="dept_id" jdbcType="CHAR" property="deptId" />
+    <result column="dept_name" jdbcType="CHAR" property="deptName" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    dept_id, dept_name
+  </sql>
+
+  <select id="selectByDeptName" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from department
+    where dept_name = #{deptName,jdbcType=CHAR}
+  </select>
+
+  <select id="selectAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from department
+  </select>
+
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from department
+    where dept_id = #{deptId,jdbcType=CHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from department
+    where dept_id = #{deptId,jdbcType=CHAR}
+  </delete>
+  <insert id="insert" parameterType="entity.Department">
+    insert into department (dept_id, dept_name)
+    values (#{deptId,jdbcType=CHAR}, #{deptName,jdbcType=CHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="entity.Department">
+    insert into department
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="deptId != null">
+        dept_id,
+      </if>
+      <if test="deptName != null">
+        dept_name,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="deptId != null">
+        #{deptId,jdbcType=CHAR},
+      </if>
+      <if test="deptName != null">
+        #{deptName,jdbcType=CHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="entity.Department">
+    update department
+    <set>
+      <if test="deptName != null">
+        dept_name = #{deptName,jdbcType=CHAR},
+      </if>
+    </set>
+    where dept_id = #{deptId,jdbcType=CHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="entity.Department">
+    update department
+    set dept_name = #{deptName,jdbcType=CHAR}
+    where dept_id = #{deptId,jdbcType=CHAR}
+  </update>
+</mapper>

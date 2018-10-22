@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd "
+       default-lazy-init="true">
+
+    <!-- 配置安全管理器securityManager， 缓存技术: 缓存管理 realm:负责获取处理数据 -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="authenticator" ref="authorizer"></property>
+        <property name="cacheManager" ref="cacheManager1" />
+        <!--注入rememberMe cookie管理器-->
+        <property name="rememberMeManager" ref="rememberMeManager"/>
+        <property name="realms">
+            <list>
+                <ref bean="LoginRealm"></ref>
+            </list>
+        </property>
+
+    </bean>
+
+    <bean id="authorizer" class="org.apache.shiro.authc.pam.ModularRealmAuthenticator">
+        <property name="authenticationStrategy">
+            <bean class="org.apache.shiro.authc.pam.AllSuccessfulStrategy"></bean>
+        </property>
+    </bean>
+
+    <bean id="LoginRealm" class="realm.LoginRealm">
+        <property name="credentialsMatcher">
+            <bean class="org.apache.shiro.authc.credential.HashedCredentialsMatcher">
+                <property name="hashAlgorithmName" value="MD5"></property> <!-- 加密算法的名称 -->
+                <property name="hashIterations" value="1024"></property> <!-- 配置加密的次数 -->
+            </bean>
+        </property>
+    </bean>
+
+    <!-- 必须配置lifecycleBeanPostProcessor:管理shiro中常见的对象 -->
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor" />
+
+    <!-- shiro的核心配置:  配置shiroFileter id名必须与web.xml中的filtername保持一致 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager" />
+        <property name="loginUrl" value="/login.jsp" />
+        <property name="successUrl" value="/yjc/homepage" />
+        <property name="filters">
+            <map>
+                <!--退出过滤器-->
+                <entry key="logout" >
+                    <bean id="logoutFilter" class="org.apache.shiro.web.filter.authc.LogoutFilter">
+                        <property name="redirectUrl" value="/logout.jsp" />
+                    </bean>
+                </entry>
+            </map>
+        </property>
+        <property name="filterChainDefinitions">
+            <value>
+                /login.jsp = anon
+                /yjc/login = anon
+                /index.jsp = authc
+                /logout.jsp=anon
+                /logout=logout
+                /** = authc
+            </value>
+        </property>
+    </bean>
+
+    <!--手动指定cookie-->
+    <bean id="rememberMeCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
+        <constructor-arg value="rememberMe"/>
+        <property name="httpOnly" value="true"/>
+        <property name="maxAge" value="3600"/>
+    </bean>
+
+    <!-- rememberMe管理器 -->
+    <bean id="rememberMeManager"
+          class="org.apache.shiro.web.mgt.CookieRememberMeManager">
+        <property name="cipherKey"
+                  value="#{T(org.apache.shiro.codec.Base64).decode('4AvVhmFLUs0KTA3Kprsdag==')}"/>
+        <property name="cookie" ref="rememberMeCookie"/>
+    </bean>
+
+    <bean id="cacheManager1" class="org.apache.shiro.cache.MemoryConstrainedCacheManager" />
+
+
+</beans>

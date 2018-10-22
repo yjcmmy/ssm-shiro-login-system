@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="dao.EmployeeMapper" >
+  <resultMap id="BaseResultMap" type="entity.Employee" >
+    <id column="id" property="id" jdbcType="INTEGER" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="birth" property="birth" jdbcType="DATE" />
+    <result column="leader_id" property="leaderId" jdbcType="INTEGER" />
+    <result column="department" property="department" jdbcType="CHAR" typeHandler="typeHandler.DepartmentTypeHandler"/>
+    <result column="salary" property="salary" jdbcType="INTEGER" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+    id, name, email, birth, leader_id, department, salary
+  </sql>
+
+  <select id="selectByEmployee" resultMap="BaseResultMap" parameterType="entity.Employee">
+    select
+    <include refid="Base_Column_List" />
+    from employee
+    <if test="_parameter!=null">
+      where
+      <choose>
+        <when test="id!=null">
+          id = #{id}
+        </when>
+        <!--
+        <when test="name!=null">
+          <bind name="name2" value="'%'+name+'%'"></bind>
+          name like #{name2}
+        </when>
+        -->
+        <when test="name!=null">
+          name =#{name}
+        </when>
+        <when test="leaderId!=null">
+          leader_id=#{leaderId}
+        </when>
+        <otherwise>1=1</otherwise>
+      </choose>
+
+    </if>
+
+  </select>
+
+  <select id="selectCount" resultType="java.lang.Integer">
+    select
+    count(*)
+    from employee
+  </select>
+
+  <select id="selectMaxId" resultType="java.lang.Integer">
+    select
+    max(id)
+    from employee
+  </select>
+
+
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Integer" >
+    select 
+    <include refid="Base_Column_List" />
+    from employee
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer" >
+    delete from employee
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="entity.Employee" >
+    insert into employee (id, name, email, 
+      birth, leader_id, department, 
+      salary)
+    values (#{id,jdbcType=INTEGER}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, 
+      #{birth,jdbcType=DATE}, #{leaderId,jdbcType=INTEGER}, #{department,jdbcType=CHAR,typeHandler=typeHandler.DepartmentTypeHandler},
+      #{salary,jdbcType=INTEGER})
+  </insert>
+  <insert id="insertSelective" parameterType="entity.Employee" >
+    insert into employee
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        id,
+      </if>
+      <if test="name != null" >
+        name,
+      </if>
+      <if test="email != null" >
+        email,
+      </if>
+      <if test="birth != null" >
+        birth,
+      </if>
+      <if test="leaderId != null" >
+        leader_id,
+      </if>
+      <if test="department != null" >
+        department,
+      </if>
+      <if test="salary != null" >
+        salary,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="id != null" >
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="name != null" >
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="birth != null" >
+        #{birth,jdbcType=DATE},
+      </if>
+      <if test="leaderId != null" >
+        #{leaderId,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        #{department,jdbcType=CHAR,typeHandler=typeHandler.DepartmentTypeHandler},
+      </if>
+      <if test="salary != null" >
+        #{salary,jdbcType=INTEGER},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="entity.Employee" >
+    update employee
+    <set >
+      <if test="name != null" >
+        name = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="email != null" >
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+      <if test="birth != null" >
+        birth = #{birth,jdbcType=DATE},
+      </if>
+      <if test="leaderId != null" >
+        leader_id = #{leaderId,jdbcType=INTEGER},
+      </if>
+      <if test="department != null" >
+        department = #{department,jdbcType=CHAR,typeHandler=typeHandler.DepartmentTypeHandler},
+      </if>
+      <if test="salary != null" >
+        salary = #{salary,jdbcType=INTEGER},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="entity.Employee" >
+    update employee
+    set name = #{name,jdbcType=VARCHAR},
+      email = #{email,jdbcType=VARCHAR},
+      birth = #{birth,jdbcType=DATE},
+      leader_id = #{leaderId,jdbcType=INTEGER},
+      department = #{department,jdbcType=CHAR,typeHandler=typeHandler.DepartmentTypeHandler},
+      salary = #{salary,jdbcType=INTEGER}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+</mapper>
